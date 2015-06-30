@@ -40,6 +40,7 @@ public class Backpropagator {
         double[] errors = new double[samples];
 
         do {
+            // one epoch
             TrainingData trainingData = generator.getTrainingData();
             error = backpropagate(trainingData.getInputs(), trainingData.getOutputs());
 

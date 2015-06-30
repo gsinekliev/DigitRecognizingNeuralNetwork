@@ -72,9 +72,9 @@ public class Layer implements Serializable {
 
     public void feedForward() {
 
-        int biasCount = hasBias() ? 1 : 0;
+        int startIndex = hasBias() ? 1 : 0;
 
-        for(int i = biasCount; i < neurons.size(); i++) {
+        for(int i = startIndex; i < neurons.size(); i++) {
             neurons.get(i).activate();
         }
     }

@@ -13,6 +13,11 @@ public class SigmoidActivationStrategy implements ActivationStrategy, Serializab
         return 1.0 / (1 + Math.exp(-1.0 * weightedSum));
     }
 
+    /**
+     * Calculated the derivative of the functikon in point 'weightedSum'
+     * @param weightedSum
+     * @return // this is possibly wrong: http://www.ai.mit.edu/courses/6.892/lecture8-html/sld015.htm
+     */
     public double derivative(double weightedSum) {
         return weightedSum * (1.0 - weightedSum);
     }

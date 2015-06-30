@@ -12,10 +12,11 @@ public class DigitImage {
 
     private int label;
     private double[] data;
+    private byte[] rawData;
 
     public DigitImage(int label, byte[] data) {
         this.label = label;
-
+        this.rawData = data;
         this.data = new double[data.length];
 
         for(int i = 0; i < this.data.length; i++) {
@@ -23,6 +24,10 @@ public class DigitImage {
         }
 
         otsu();
+    }
+
+    public byte[] getOriginalData(){
+        return rawData;
     }
 
     //Uses Otsu's Threshold algorithm to convert from grayscale to black and white

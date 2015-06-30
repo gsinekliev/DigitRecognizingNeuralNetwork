@@ -116,6 +116,7 @@ public class NeuralNetwork implements Serializable {
 
         double[] outputs = new double[output.getNeurons().size()];
 
+        // feed forward starts from first layer
         for(int i = 1; i < layers.size(); i++) {
             Layer layer = layers.get(i);
             layer.feedForward();
