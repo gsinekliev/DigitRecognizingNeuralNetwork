@@ -1,11 +1,14 @@
 package net.vivin;
 
 import net.vivin.digit.DigitImage;
+import net.vivin.digit.generator.DigitTrainingDataGenerator;
+import net.vivin.neural.Backpropagator;
 import net.vivin.neural.Layer;
 import net.vivin.neural.NeuralNetwork;
 import net.vivin.neural.Neuron;
 import net.vivin.neural.activators.LinearActivationStrategy;
 import net.vivin.neural.activators.SigmoidActivationStrategy;
+import net.vivin.neural.generator.TrainingData;
 import net.vivin.service.DigitImageLoadingService;
 
 import javax.imageio.ImageIO;
@@ -30,10 +33,12 @@ public class DigitRecognizingNeuralNetwork {
 
         NeuralNetwork neuralNetwork = new NeuralNetwork("Digit Recognizing Neural Network");
 
-        //initNeuralNetworkTopology(neuralNetwork);
+//        testService.writeImagesToFiles( "testData" );
+//        trainingService.writeImagesToFiles( "trainingData" );
 
-        writeImagesToFiles( "Training" );
-/*
+        initNeuralNetworkTopology(neuralNetwork);
+
+
         DigitTrainingDataGenerator trainingDataGenerator = new DigitTrainingDataGenerator(trainingService.loadDigitImages());
         Backpropagator backpropagator = new Backpropagator(neuralNetwork, 0.1, 0.9, 0);
         backpropagator.train(trainingDataGenerator, 0.005);
@@ -68,6 +73,31 @@ public class DigitRecognizingNeuralNetwork {
             System.out.println("Recognized " + (digit - 1) + " as " + recognizedDigit + ". Corresponding output value was " + max);
         }*/
     }
+
+    private static NeuralNetwork loadNetworkFromFile( File file ){
+
+        ObjectInputStream objectInputStream = null;
+
+        try {
+            objectInputStream = new ObjectInputStream(new FileInputStream(file));
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+
+        try {
+            NeuralNetwork net = (NeuralNetwork) objectInputStream.readObject();
+            return net;
+        } catch (ClassNotFoundException e1) {
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+
+        return null;
+    }
+
 
     private static void initNeuralNetworkTopology(NeuralNetwork neuralNetwork) {
         Neuron inputBias = new Neuron(new LinearActivationStrategy());
@@ -108,50 +138,5 @@ public class DigitRecognizingNeuralNetwork {
         neuralNetwork.addLayer(outputLayer);
     }
 
-    private static void writeImagesToFiles( String outputFileDirectory )
-    {
-        DigitImageLoadingService trainingService = new DigitImageLoadingService("/train/train-labels-idx1-ubyte.dat", "/train/train-images-idx3-ubyte.dat");
 
-        List<DigitImage> images = null;
-        try {
-            images = trainingService.loadDigitImages();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        HashMap<Integer, List<DigitImage> > labelToDigitImageListMap = new HashMap<Integer, List<DigitImage>>();
-
-        for (DigitImage digitImage: images) {
-
-            if (labelToDigitImageListMap.get(digitImage.getLabel()) == null) {
-                labelToDigitImageListMap.put(digitImage.getLabel(), new ArrayList<DigitImage>());
-            }
-
-            labelToDigitImageListMap.get(digitImage.getLabel()).add(digitImage);
-        }
-
-        for (Map.Entry<Integer, List<DigitImage>> entry : labelToDigitImageListMap.entrySet()) {
-            Integer key = entry.getKey();
-            List<DigitImage> values = entry.getValue();
-
-            for (int i = 0; i < values.size(); ++ i ) {
-                DigitImage image = values.get(i);
-
-                String path = outputFileDirectory + "/" + String.valueOf(image.getLabel()) + "_" + String.valueOf(i);
-                try {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    BufferedImage imageBuffer = new BufferedImage( 28, 28, BufferedImage.TYPE_BYTE_GRAY );
-                    System.arraycopy(image.getOriginalData(), 0, imageBuffer, 0, image.getOriginalData().length);
-
-                    ImageIO.write(imageBuffer, "png", baos);
-
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-    }
 }

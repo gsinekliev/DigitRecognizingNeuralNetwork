@@ -2,13 +2,12 @@ package net.vivin.service;
 
 import net.vivin.digit.DigitImage;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,11 +29,11 @@ public class DigitImageLoadingService {
     private static final int IMAGE_MAGIC = 2051;
 
     private static final int NUMBER_ITEMS_OFFSET = 4;
-    private static final int ITEMS_SIZE = 4;
+    private static final int ITEMS_SIZE          = 4;
 
     private static final int NUMBER_OF_ROWS_OFFSET = 8;
-    private static final int ROWS_SIZE = 4;
-    public static final int ROWS = 28;
+    private static final int ROWS_SIZE             = 4;
+    public static final int ROWS                   = 28;
 
     private static final int NUMBER_OF_COLUMNS_OFFSET = 12;
     private static final int COLUMNS_SIZE = 4;
@@ -109,5 +108,60 @@ public class DigitImageLoadingService {
         }
 
         return images;
+    }
+
+    public static void writeImagesToFiles( String outputFileDirectory )
+    {
+        DigitImageLoadingService trainingService = new DigitImageLoadingService("/train/train-labels-idx1-ubyte.dat", "/train/train-images-idx3-ubyte.dat");
+
+        List<DigitImage> images = null;
+        try {
+            images = trainingService.loadDigitImages();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        HashMap<Integer, List<DigitImage> > labelToDigitImageListMap = new HashMap<Integer, List<DigitImage>>();
+
+        for (DigitImage digitImage: images) {
+
+            if (labelToDigitImageListMap.get(digitImage.getLabel()) == null) {
+                labelToDigitImageListMap.put(digitImage.getLabel(), new ArrayList<DigitImage>());
+            }
+
+            labelToDigitImageListMap.get(digitImage.getLabel()).add(digitImage);
+        }
+
+        for (Map.Entry<Integer, List<DigitImage>> entry : labelToDigitImageListMap.entrySet()) {
+            List<DigitImage> values = entry.getValue();
+
+            for (int i = 0; i < values.size(); ++ i ) {
+                DigitImage image = values.get(i);
+
+                String path = String.valueOf( outputFileDirectory + "/" + image.getLabel()) + "_" + String.valueOf(i) + ".png";
+                byte[] imageByteData = image.getOriginalData();
+                try {
+                    FileOutputStream baos = new FileOutputStream(path);
+                    BufferedImage imageBuffer = new BufferedImage( ROWS, COLUMNS, BufferedImage.TYPE_BYTE_GRAY );
+
+                    for ( int r = 0; r < ROWS; ++ r )
+                    {
+                        for ( int c = 0; c < COLUMNS; ++ c )
+                        {
+                            imageBuffer.setRGB( c, r, ~( imageByteData[ r * ROWS + c ] & 0xFF ) );
+                        }
+                    }
+
+                    ImageIO.write(imageBuffer, "png", baos);
+                    baos.flush();
+                    baos.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 }
