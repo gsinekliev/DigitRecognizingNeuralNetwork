@@ -10,6 +10,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 import java.io.*;
 import java.nio.file.Paths;
 
@@ -29,6 +32,7 @@ public class MainWindow {
 
     private NeuralNetwork net = null;
     private File chosenImageFile  = null;
+    private BufferedImage chosenImage = null;
 
     public MainWindow() {
         loadFileButton.addActionListener(new ActionListener() {
@@ -47,6 +51,7 @@ public class MainWindow {
 
                     try {
                         BufferedImage img = ImageIO.read(chosenImageFile);
+                        chosenImage = img;
                         ImageIcon icon = new ImageIcon(img);
                         imagePathLabel.setText( chosenImageFile.getAbsolutePath() );
                         imageLabel.setIcon(icon);
@@ -96,16 +101,34 @@ public class MainWindow {
                     JOptionPane.showMessageDialog(null, "You have not selected neural network");
                 }
 
-                if ( chosenImageFile == null )
+                if ( chosenImage == null )
                 {
                     JOptionPane.showMessageDialog(null, "You have not selected image");
                 }
 
-                net.setInputs(DigitImage.preprocessImage(chosenImageFile));
+                net.setInputs(DigitImage.preprocessImage(chosenImage));
 
                 double[] output =  net.getOutput();
 
                 fillTextAreaFromResults(output);
+            }
+        });
+        blurButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                float[] matrix = {
+                        0.111f, 0.111f, 0.111f,
+                        0.111f, 0.111f, 0.111f,
+                        0.111f, 0.111f, 0.111f,
+                };
+
+                BufferedImageOp op = new ConvolveOp(new Kernel(3, 3, matrix));
+
+                chosenImage = op.filter(chosenImage, null);
+
+                ImageIcon icon = new ImageIcon(chosenImage);
+                imageLabel.setIcon(icon);
             }
         });
     }

@@ -37,32 +37,10 @@ public class DigitImage {
     }
 
     public static double[] preprocessImage(File inputFile){
-        byte[] grayLevels;
         try {
             BufferedImage image = ImageIO.read(inputFile);
 
-            grayLevels = new byte[ image.getWidth() * image.getHeight() ];
-
-            for ( int row = 0; row < image.getHeight(); ++ row ) {
-                for ( int column = 0; column < image.getWidth(); ++ column ) {
-                    int rgb = image.getRGB(column, row);
-
-                    Color rgbColor = new Color(rgb);
-
-                    int r = rgbColor.getRed();
-                    int g = rgbColor.getGreen();
-                    int b = rgbColor.getBlue();
-
-                    int grayscaleColorLevel = ( r + g + b ) / 3;
-                    int transformedColorLevel = 255 - grayscaleColorLevel; // so that 255 can be black and 0 - white
-                    // ( our neural network is trained that way;
-                    byte toByte = (byte)transformedColorLevel;
-
-                    grayLevels[ row * image.getHeight() + column ] = toByte;
-                }
-            }
-
-            return preprocessImage(grayLevels);
+            return preprocessImage(image);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -70,6 +48,32 @@ public class DigitImage {
 
         return new double[0];
     }
+
+    public static double[] preprocessImage( BufferedImage image ){
+        byte[] grayLevels = new byte[ image.getWidth() * image.getHeight() ];
+
+        for ( int row = 0; row < image.getHeight(); ++ row ) {
+            for ( int column = 0; column < image.getWidth(); ++ column ) {
+                int rgb = image.getRGB(column, row);
+
+                Color rgbColor = new Color(rgb);
+
+                int r = rgbColor.getRed();
+                int g = rgbColor.getGreen();
+                int b = rgbColor.getBlue();
+
+                int grayscaleColorLevel = ( r + g + b ) / 3;
+                int transformedColorLevel = 255 - grayscaleColorLevel; // so that 255 can be black and 0 - white
+                // ( our neural network is trained that way;
+                byte toByte = (byte)transformedColorLevel;
+
+                grayLevels[ row * image.getHeight() + column ] = toByte;
+            }
+        }
+
+        return preprocessImage(grayLevels);
+    }
+
     /**
      * Preprocesses the image
      * 1) Converting byte data to unsigned grayscale intesity values
