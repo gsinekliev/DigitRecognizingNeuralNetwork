@@ -28,23 +28,34 @@ public class DigitRecognizingNeuralNetwork {
     public static void main(String[] args) throws IOException {
 
         DigitImageLoadingService trainingService = new DigitImageLoadingService("/train/train-labels-idx1-ubyte.dat", "/train/train-images-idx3-ubyte.dat");
-
         DigitImageLoadingService testService = new DigitImageLoadingService("/test/t10k-labels-idx1-ubyte.dat", "/test/t10k-images-idx3-ubyte.dat");
 
-        NeuralNetwork neuralNetwork = new NeuralNetwork("Digit Recognizing Neural Network");
+
+        NeuralNetwork neuralNetwork = loadNetworkFromFile(new File("./DigitRecognizingNeuralNetwork-1321880921458.net"));
 
 //        testService.writeImagesToFiles( "testData" );
-//        trainingService.writeImagesToFiles( "trainingData" );
+        //trainingService.writeImagesToFiles( "trainingData" );
 
-        initNeuralNetworkTopology(neuralNetwork);
-
-
-        DigitTrainingDataGenerator trainingDataGenerator = new DigitTrainingDataGenerator(trainingService.loadDigitImages());
-        Backpropagator backpropagator = new Backpropagator(neuralNetwork, 0.1, 0.9, 0);
-        backpropagator.train(trainingDataGenerator, 0.005);
+//        NeuralNetwork neuralNetwork = new NeuralNetwork("Digit Recognizing Neural Network");
+//
+//        initNeuralNetworkTopology(neuralNetwork);
+//
+//
+//        DigitTrainingDataGenerator trainingDataGenerator = new DigitTrainingDataGenerator(trainingService.loadDigitImages());
+//        Backpropagator backpropagator = new Backpropagator(neuralNetwork, 0.1, 0.9, 0);
+//        backpropagator.train(trainingDataGenerator, 0.005);
         //neuralNetwork.persist();
 
-        DigitTrainingDataGenerator testDataGenerator = new DigitTrainingDataGenerator(testService.loadDigitImages());
+        testNeuralNetwork( neuralNetwork, testService );
+    }
+
+    private static void testNeuralNetwork( NeuralNetwork neuralNetwork, DigitImageLoadingService testService ) {
+        DigitTrainingDataGenerator testDataGenerator = null;
+        try {
+            testDataGenerator = new DigitTrainingDataGenerator(testService.loadDigitImages());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         TrainingData testData = testDataGenerator.getTrainingData();
 
         for(int i = 0; i < testData.getInputs().length; i++) {
@@ -71,7 +82,7 @@ public class DigitRecognizingNeuralNetwork {
             }
 
             System.out.println("Recognized " + (digit - 1) + " as " + recognizedDigit + ". Corresponding output value was " + max);
-        }*/
+        }
     }
 
     private static NeuralNetwork loadNetworkFromFile( File file ){

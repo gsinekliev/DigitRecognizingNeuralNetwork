@@ -3,11 +3,13 @@ package net.vivin.service;
 import net.vivin.digit.DigitImage;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -135,7 +137,7 @@ public class DigitImageLoadingService {
         for (Map.Entry<Integer, List<DigitImage>> entry : labelToDigitImageListMap.entrySet()) {
             List<DigitImage> values = entry.getValue();
 
-            for (int i = 0; i < values.size(); ++ i ) {
+            for (int i = 0; i < 2; /*values.size();*/ ++ i ) {
                 DigitImage image = values.get(i);
 
                 String path = String.valueOf( outputFileDirectory + "/" + image.getLabel()) + "_" + String.valueOf(i) + ".png";
@@ -148,7 +150,14 @@ public class DigitImageLoadingService {
                     {
                         for ( int c = 0; c < COLUMNS; ++ c )
                         {
-                            imageBuffer.setRGB( c, r, ~( imageByteData[ r * ROWS + c ] & 0xFF ) );
+                            int pixelIntensityUnsigned = imageByteData[ r * ROWS + c ] & 0xFF; // from 0 to 255
+                                                                                               // 0   means white
+                                                                                               // 255 means black
+                            int rgbCompliantIntensity = 255 - pixelIntensityUnsigned;
+                            Color myWhite = new Color(rgbCompliantIntensity, rgbCompliantIntensity, rgbCompliantIntensity); // Color white
+                            int rgb = myWhite.getRGB();
+
+                            imageBuffer.setRGB( c, r, rgb );
                         }
                     }
 

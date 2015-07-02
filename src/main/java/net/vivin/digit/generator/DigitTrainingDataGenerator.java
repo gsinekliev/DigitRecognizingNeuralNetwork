@@ -34,12 +34,15 @@ public class DigitTrainingDataGenerator implements TrainingDataGenerator {
     public TrainingData getTrainingData() {
         digits = shuffle(digits);
 
-        double[][] inputs = new double[10][DigitImageLoadingService.ROWS * DigitImageLoadingService.COLUMNS];
-        double[][] outputs = new double[10][10];
+        int times = 3;
+        double[][] inputs = new double[10*times][DigitImageLoadingService.ROWS * DigitImageLoadingService.COLUMNS];
+        double[][] outputs = new double[10*times][10];
 
         for(int i = 0; i < 10; i++) {
-            inputs[i] = getRandomImageForLabel(digits[i]).getData();
-            outputs[i] = getOutputFor(digits[i]);
+            for ( int j = 0; j < times; ++ j ) {
+                inputs[i * times + j] = getRandomImageForLabel(digits[i]).getData();
+                outputs[i * times + j] = getOutputFor(digits[i]);
+            }
         }
 
         return new TrainingData(inputs, outputs);

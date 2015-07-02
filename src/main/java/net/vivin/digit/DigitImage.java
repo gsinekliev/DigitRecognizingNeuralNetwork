@@ -28,13 +28,7 @@ public class DigitImage {
     public DigitImage(int label, byte[] data) {
         this.label = label;
         this.rawData = data;
-        this.data = new double[data.length];
-
-        for(int i = 0; i < this.data.length; i++) {
-            this.data[i] =  data[i] & 0xFF; //convert to unsigned
-        }
-
-        this.data = otsu(this.data);
+        this.data = DigitImage.preprocessImage(this.rawData);
     }
 
 
@@ -51,15 +45,20 @@ public class DigitImage {
 
             for ( int row = 0; row < image.getHeight(); ++ row ) {
                 for ( int column = 0; column < image.getWidth(); ++ column ) {
-                    int rgb = image.getRGB( row, column );
-                    int r = (rgb >> 16) & 0xFF;
-                    int g = (rgb >> 8) & 0xFF;
-                    int b = (rgb & 0xFF);
-                    byte grayscale = (byte)(( r + g + b ) / 3);
+                    int rgb = image.getRGB(column, row);
 
+                    Color rgbColor = new Color(rgb);
 
-                    //imageBuffer.setRGB( c, r, ~( imageByteData[ r * ROWS + c ] & 0xFF ) );
-                    grayLevels[ row * image.getHeight() + column ] = grayscale;
+                    int r = rgbColor.getRed();
+                    int g = rgbColor.getGreen();
+                    int b = rgbColor.getBlue();
+
+                    int grayscaleColorLevel = ( r + g + b ) / 3;
+                    int transformedColorLevel = 255 - grayscaleColorLevel; // so that 255 can be black and 0 - white
+                    // ( our neural network is trained that way;
+                    byte toByte = (byte)transformedColorLevel;
+
+                    grayLevels[ row * image.getHeight() + column ] = toByte;
                 }
             }
 

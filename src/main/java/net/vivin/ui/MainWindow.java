@@ -122,10 +122,17 @@ public class MainWindow {
     {
         String newline = System.getProperty("line.separator");
         String resultsString = new String();
-        for (int i = 0; i < 9; ++ i) {
+        double max = results[0];
+        int j = 0; // position of max element
+        for (int i = 0; i < 10; ++ i) {
             resultsString += i + " - " + String.valueOf(results[i]) + newline;
+            if ( results[i] > max ){
+                j = i;
+                max = results[i];
+            }
         }
 
+        resultsString = "Maximum probability for: " + String.valueOf(j) + newline + resultsString;
         resultsTextArea.setText(resultsString);
     }
 }
