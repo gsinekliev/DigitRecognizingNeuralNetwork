@@ -17,7 +17,7 @@ public class XorTrainingDataGenerator implements TrainingDataGenerator {
     double[][] outputs = {{0}, {1}, {1}, {0}};
     int[] inputIndices = {0, 1, 2, 3};
 
-    public TrainingData getTrainingData() {
+    public TrainingData getTrainingData(int examplesPerDigit) {
         double[][] randomizedInputs = new double[4][2];
         double[][] randomizedOutputs = new double[4][1];
 

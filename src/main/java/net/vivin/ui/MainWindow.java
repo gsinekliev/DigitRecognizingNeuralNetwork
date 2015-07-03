@@ -1,5 +1,7 @@
 package net.vivin.ui;
 
+import javafx.scene.paint.Color;
+import net.vivin.DigitRecognizingNeuralNetwork;
 import net.vivin.neural.NeuralNetwork;
 import net.vivin.digit.DigitImage;
 
@@ -15,6 +17,7 @@ import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.Random;
 
 
 /**
@@ -29,6 +32,8 @@ public class MainWindow {
     private JPanel mainPanel;
     private JLabel imageLabel;
     private JLabel imagePathLabel;
+    private JButton applyNoiseButton;
+    private JButton testNetworkButton;
 
     private NeuralNetwork net = null;
     private File chosenImageFile  = null;
@@ -99,11 +104,13 @@ public class MainWindow {
                 if ( net == null )
                 {
                     JOptionPane.showMessageDialog(null, "You have not selected neural network");
+                    return;
                 }
 
                 if ( chosenImage == null )
                 {
                     JOptionPane.showMessageDialog(null, "You have not selected image");
+                    return;
                 }
 
                 net.setInputs(DigitImage.preprocessImage(chosenImage));
@@ -129,6 +136,39 @@ public class MainWindow {
 
                 ImageIcon icon = new ImageIcon(chosenImage);
                 imageLabel.setIcon(icon);
+            }
+        });
+        applyNoiseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // this should add some random black pixels in image
+                int height = chosenImage.getHeight();
+                int width = chosenImage.getWidth();
+
+                Random random = new Random();
+                for ( int i = 0; i < 20; ++ i )
+                {
+                    int x = random.nextInt( width );
+                    int y = random.nextInt( height );
+
+                    chosenImage.setRGB( x, y, 0 ); // black;
+                }
+
+                ImageIcon icon = new ImageIcon(chosenImage);
+                imageLabel.setIcon(icon);
+            }
+        });
+        testNetworkButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if ( net == null )
+                {
+                    JOptionPane.showMessageDialog(null, "You have not selected neural network");
+                    return;
+                }
+
+                String results = DigitRecognizingNeuralNetwork.testNeuralNetwork( net, 10 );
+                resultsTextArea.setText(results);
             }
         });
     }

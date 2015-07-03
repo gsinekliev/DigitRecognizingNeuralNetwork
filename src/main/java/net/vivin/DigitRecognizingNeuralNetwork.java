@@ -46,18 +46,23 @@ public class DigitRecognizingNeuralNetwork {
 //        backpropagator.train(trainingDataGenerator, 0.005);
         //neuralNetwork.persist();
 
-        testNeuralNetwork( neuralNetwork, testService );
+        testNeuralNetwork( neuralNetwork, 10 );
     }
 
-    private static void testNeuralNetwork( NeuralNetwork neuralNetwork, DigitImageLoadingService testService ) {
+    public static String testNeuralNetwork( NeuralNetwork neuralNetwork,
+                                             int examplesPerDigit ) {
+        DigitImageLoadingService testService = new DigitImageLoadingService("/test/t10k-labels-idx1-ubyte.dat", "/test/t10k-images-idx3-ubyte.dat");
         DigitTrainingDataGenerator testDataGenerator = null;
         try {
             testDataGenerator = new DigitTrainingDataGenerator(testService.loadDigitImages());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        TrainingData testData = testDataGenerator.getTrainingData();
+        TrainingData testData = testDataGenerator.getTrainingData( examplesPerDigit );
+        String newline = System.getProperty("line.separator");
+        String results = new String();
 
+        int correctAnswers = 0;
         for(int i = 0; i < testData.getInputs().length; i++) {
             double[] input = testData.getInputs()[i];
             double[] output = testData.getOutputs()[i];
@@ -81,8 +86,20 @@ public class DigitRecognizingNeuralNetwork {
                 }
             }
 
-            System.out.println("Recognized " + (digit - 1) + " as " + recognizedDigit + ". Corresponding output value was " + max);
+            String temp = "Recognized " + (digit - 1) + " as " + recognizedDigit + ". Corresponding output value was " + max;
+            results = results + temp + newline;
+            if ( digit - 1 == recognizedDigit )
+            {
+                correctAnswers += 1;
+            }
+
+            System.out.println(temp);
         }
+
+        double correctPercentage =  (double)correctAnswers / (10 * examplesPerDigit );
+
+        results = "Precision: " + String.format("%.2f", correctPercentage) + newline + results;
+        return results;
     }
 
     private static NeuralNetwork loadNetworkFromFile( File file ){
@@ -108,7 +125,6 @@ public class DigitRecognizingNeuralNetwork {
 
         return null;
     }
-
 
     private static void initNeuralNetworkTopology(NeuralNetwork neuralNetwork) {
         Neuron inputBias = new Neuron(new LinearActivationStrategy());
@@ -148,6 +164,4 @@ public class DigitRecognizingNeuralNetwork {
         neuralNetwork.addLayer(hiddenLayer);
         neuralNetwork.addLayer(outputLayer);
     }
-
-
 }

@@ -7,5 +7,5 @@ package net.vivin.neural.generator;
  * Time: 6:05 PM
  */
 public interface TrainingDataGenerator {
-    TrainingData getTrainingData();
+    TrainingData getTrainingData( int examplesPerDigit );
 }

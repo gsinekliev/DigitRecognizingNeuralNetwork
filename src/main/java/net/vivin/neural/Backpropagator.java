@@ -41,7 +41,7 @@ public class Backpropagator {
 
         do {
             // one epoch
-            TrainingData trainingData = generator.getTrainingData();
+            TrainingData trainingData = generator.getTrainingData(1);
             error = backpropagate(trainingData.getInputs(), trainingData.getOutputs());
 
             sum -= errors[epoch % samples];
